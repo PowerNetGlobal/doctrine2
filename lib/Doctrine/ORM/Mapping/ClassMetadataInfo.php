@@ -47,6 +47,9 @@ use Doctrine\Common\ClassLoader;
  */
 class ClassMetadataInfo implements ClassMetadata
 {
+    //RJH
+    const DEBUG_REVERSE = true;
+
     /* The inheritance mapping types */
     /**
      * NONE means the class does not participate in an inheritance hierarchy
@@ -1198,7 +1201,8 @@ class ClassMetadataInfo implements ClassMetadata
 
         $this->columnNames[$mapping['fieldName']] = $mapping['columnName'];
         if (isset($this->fieldNames[$mapping['columnName']]) || ($this->discriminatorColumn != null && $this->discriminatorColumn['name'] == $mapping['columnName'])) {
-            throw MappingException::duplicateColumnName($this->name, $mapping['columnName']);
+            if(self::DEBUG_REVERSE) echo "\nERROR duplicateColumnName: ".$this->name;
+            //RJH throw MappingException::duplicateColumnName($this->name, $mapping['columnName']);
         }
 
         $this->fieldNames[$mapping['columnName']] = $mapping['fieldName'];
@@ -1277,9 +1281,10 @@ class ClassMetadataInfo implements ClassMetadata
 
             if ( ! in_array($mapping['fieldName'], $this->identifier)) {
                 if (count($mapping['joinColumns']) >= 2) {
-                    throw MappingException::cannotMapCompositePrimaryKeyEntitiesAsForeignId(
-                        $mapping['targetEntity'], $this->name, $mapping['fieldName']
-                    );
+                    if(self::DEBUG_REVERSE) echo "\nERROR cannotMapCompositePrimaryKeyEntitiesAsForeignId: ".$this->name;
+                    //RJH // throw MappingException::cannotMapCompositePrimaryKeyEntitiesAsForeignId(
+                    //     $mapping['targetEntity'], $this->name, $mapping['fieldName']
+                    // );
                 }
 
                 $this->identifier[] = $mapping['fieldName'];
@@ -1568,7 +1573,8 @@ class ClassMetadataInfo implements ClassMetadata
     public function getSingleIdentifierFieldName()
     {
         if ($this->isIdentifierComposite) {
-            throw MappingException::singleIdNotAllowedOnCompositePrimaryKey($this->name);
+            if(self::DEBUG_REVERSE) echo "\nERROR singleIdNotAllowedOnCompositePrimaryKey: ".$this->name;
+            //RJH // throw MappingException::singleIdNotAllowedOnCompositePrimaryKey($this->name);
         }
         return $this->identifier[0];
     }
@@ -2052,7 +2058,8 @@ class ClassMetadataInfo implements ClassMetadata
     {
         $this->_validateAndCompleteFieldMapping($mapping);
         if (isset($this->fieldMappings[$mapping['fieldName']]) || isset($this->associationMappings[$mapping['fieldName']])) {
-            throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
+            if(self::DEBUG_REVERSE) echo "\nERROR duplicateFieldMapping: ".$this->name;
+            //RJH // throw MappingException::duplicateFieldMapping($this->name, $mapping['fieldName']);
         }
         $this->fieldMappings[$mapping['fieldName']] = $mapping;
     }
@@ -2069,7 +2076,8 @@ class ClassMetadataInfo implements ClassMetadata
     public function addInheritedAssociationMapping(array $mapping/*, $owningClassName = null*/)
     {
         if (isset($this->associationMappings[$mapping['fieldName']])) {
-            throw MappingException::duplicateAssociationMapping($this->name, $mapping['fieldName']);
+            if(self::DEBUG_REVERSE) echo "\nERROR duplicateAssociationMapping: ".$this->name;
+            //RJH // throw MappingException::duplicateAssociationMapping($this->name, $mapping['fieldName']);
         }
         $this->associationMappings[$mapping['fieldName']] = $mapping;
     }
@@ -2103,7 +2111,8 @@ class ClassMetadataInfo implements ClassMetadata
         }
 
         if (isset($this->namedQueries[$queryMapping['name']])) {
-            throw MappingException::duplicateQueryMapping($this->name, $queryMapping['name']);
+            if(self::DEBUG_REVERSE) echo "\nERROR duplicateQueryMapping: ".$this->name;
+            //RJH // throw MappingException::duplicateQueryMapping($this->name, $queryMapping['name']);
         }
 
         if (!isset($queryMapping['query'])) {
@@ -2282,7 +2291,8 @@ class ClassMetadataInfo implements ClassMetadata
         $sourceFieldName = $assocMapping['fieldName'];
 
         if (isset($this->fieldMappings[$sourceFieldName]) || isset($this->associationMappings[$sourceFieldName])) {
-            throw MappingException::duplicateFieldMapping($this->name, $sourceFieldName);
+            if(self::DEBUG_REVERSE) echo "\nERROR duplicateFieldMapping: ".$this->name;
+            //RJH // throw MappingException::duplicateFieldMapping($this->name, $sourceFieldName);
         }
 
         $this->associationMappings[$sourceFieldName] = $assocMapping;
@@ -2379,7 +2389,8 @@ class ClassMetadataInfo implements ClassMetadata
             }
 
             if (isset($this->fieldNames[$columnDef['name']])) {
-                throw MappingException::duplicateColumnName($this->name, $columnDef['name']);
+                if(self::DEBUG_REVERSE) echo "\nERROR duplicateColumnName: ".$this->name;
+                //RJH // throw MappingException::duplicateColumnName($this->name, $columnDef['name']);
             }
 
             if ( ! isset($columnDef['fieldName'])) {

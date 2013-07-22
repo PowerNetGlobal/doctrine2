@@ -39,6 +39,9 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager,
  */
 class DatabaseDriver implements MappingDriver
 {
+    //RJH
+    const DEBUG_REVERSE = true;
+
     /**
      * @var AbstractSchemaManager
      */
@@ -129,24 +132,47 @@ class DatabaseDriver implements MappingDriver
             }
 
             if ( ! $table->hasPrimaryKey()) {
-                throw new MappingException(
-                    "Table " . $table->getName() . " has no primary key. Doctrine does not ".
-                    "support reverse engineering from tables that don't have a primary key."
-                );
+                //RJH
+                if(self::DEBUG_REVERSE) echo "\nERROR NoPrimaryKey: ".$table->getName();
+                // throw new MappingException(
+                //     "Table " . $table->getName() . " has no primary key. Doctrine does not ".
+                //     "support reverse engineering from tables that don't have a primary key."
+                // );
             }
 
-            $pkColumns = $table->getPrimaryKey()->getColumns();
-            sort($pkColumns);
-            sort($allForeignKeyColumns);
+            //RJH
+            // $pkColumns = $table->getPrimaryKey()->getColumns();
+            // sort($pkColumns);
+            // sort($allForeignKeyColumns);
 
-            if ($pkColumns == $allForeignKeyColumns && count($foreignKeys) == 2) {
-                $this->manyToManyTables[$tableName] = $table;
-            } else {
-                // lower-casing is necessary because of Oracle Uppercase Tablenames,
-                // assumption is lower-case + underscore separated.
-                $className = $this->getClassNameForTable($tableName);
-                $this->tables[$tableName] = $table;
-                $this->classToTableNames[$className] = $tableName;
+            // if ($pkColumns == $allForeignKeyColumns && count($foreignKeys) == 2) {
+            //     $this->manyToManyTables[$tableName] = $table;
+            // } else {
+            //     // lower-casing is necessary because of Oracle Uppercase Tablenames,
+            //     // assumption is lower-case + underscore separated.
+            //     $className = $this->getClassNameForTable($tableName);
+            //     $this->tables[$tableName] = $table;
+            //     $this->classToTableNames[$className] = $tableName;
+            // }
+
+            $pk = $table->getPrimaryKey();
+            if($pk !== null) {
+                $pkColumns = $pk->getColumns();
+                $pkColumns = $table->getPrimaryKey()->getColumns();
+                sort($pkColumns);
+                sort($allForeignKeyColumns);
+
+                if ($pkColumns == $allForeignKeyColumns && count($foreignKeys) == 2) {
+                    $this->manyToManyTables[$tableName] = $table;
+                } else {
+                    // lower-casing is necessary because of Oracle Uppercase Tablenames,
+                    // assumption is lower-case + underscore separated.
+                    $className = $this->getClassNameForTable($tableName);
+                    $this->tables[$tableName] = $table;
+                    $this->classToTableNames[$className] = $tableName;
+                }
+            }else{
+                // if(self::DEBUG_REVERSE) echo "\nERROR2: ".$table->getName();
             }
         }
     }
